@@ -1,6 +1,6 @@
 # AuthorityLayer
 
-[![CI](https://github.com/032383justin/authority-layer/actions/workflows/ci.yml/badge.svg)](https://github.com/032383justin/authority-layer/actions/workflows/ci.yml)
+[![CI](https://github.com/032383justin/authority-layer/actions/workflows/ci.yml/badge.svg)](https://github.com/032383justin/authority-layer/actions/workflows/ci.yml) [![npm version](https://img.shields.io/npm/v/authority-layer)](https://www.npmjs.com/package/authority-layer)
 
 Hard execution and budget limits for autonomous agents — enforced locally.
 
@@ -93,10 +93,3 @@ When a boundary is crossed, execution stops.
 - Tamper-evident hash-linked event chain
 - Zero outbound calls unless explicitly configured
 
----
-
-## Installation
-
-```bash
-npm install authority-layer
-```
