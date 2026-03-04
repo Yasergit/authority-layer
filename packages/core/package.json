@@ -1,6 +1,6 @@
 {
   "name": "authority-layer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Hard execution and budget limits for autonomous agents — enforced locally.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,11 +25,20 @@
     "guardrails",
     "runtime",
     "budget",
-    "limits"
+    "limits",
+    "enforcement",
+    "autonomous-agents",
+    "llm",
+    "agentic",
+    "safety",
+    "rate-limiting",
+    "cost-control",
+    "openai",
+    "tool-calls"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/032383justin/authority-layer"
+    "url": "git+https://github.com/032383justin/authority-layer.git"
   },
   "homepage": "https://github.com/032383justin/authority-layer",
   "bugs": {
