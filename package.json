@@ -6,5 +6,6 @@
     ],
     "scripts": {
         "example": "npm run -w authority-layer build && node examples/run.js"
-    }
+    },
+    "version": "0.0.1"
 }
