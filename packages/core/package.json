@@ -1,6 +1,6 @@
 {
   "name": "authority-layer",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Hard execution and budget limits for autonomous agents — enforced locally.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "dist"
   ],
   "bin": {
-    "authority-layer": "dist/doctor.js"
+    "authority-layer": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -16,7 +16,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "validate": "tsc -p tsconfig.json && node dist/index.js",
     "example": "node ../../examples/run.js",
-    "doctor": "node dist/doctor.js",
+    "doctor": "node dist/cli.js doctor",
+    "simulate": "node dist/cli.js simulate",
     "prepublishOnly": "npm run build && npm run typecheck"
   },
   "keywords": [

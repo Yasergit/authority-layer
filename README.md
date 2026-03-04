@@ -35,7 +35,7 @@ npx authority-layer doctor
 ```
 
 ```
-AuthorityLayer Doctor  authority-layer@0.1.1
+AuthorityLayer Doctor  authority-layer@0.1.2
 
   ✔  Node.js version >= 18                  pass
   ✔  crypto module (sha256)                 pass
@@ -45,6 +45,14 @@ AuthorityLayer Doctor  authority-layer@0.1.1
 
 All checks passed. AuthorityLayer is ready.
 ```
+
+Try a simulated enforcement run:
+
+```bash
+npx authority-layer simulate
+```
+
+Runs a canned agent loop that intentionally exceeds the budget cap — so you can see AuthorityLayer halt execution and verify the event chain without writing any code.
 
 ---
 
