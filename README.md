@@ -1,155 +1,135 @@
 # AuthorityLayer
 
-[![CI](https://github.com/032383justin/authority-layer/actions/workflows/ci.yml/badge.svg)](https://github.com/032383justin/authority-layer/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/authority-layer?color=blue)](https://www.npmjs.com/package/authority-layer)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Node.js >= 18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+![RepoScore](https://repoforge.dev/badge/repoforge-dev/authority-layer)
 
-Hard execution and budget limits for autonomous agents — enforced locally.
+AuthorityLayer enforces hard runtime limits for AI agents so budgets, loop counts, and tool-call rates fail closed instead of drifting until after damage is done.
 
-✔ No telemetry  
-✔ Works fully offline  
-✔ Fail-closed by default  
-✔ Zero runtime dependencies
+## What This Project Does
 
----
+AuthorityLayer gives developers a minimal runtime control layer for autonomous or tool-using agents. It wraps an execution loop, tracks spend, limits tool-call volume, and throws a typed halt when an agent crosses a configured boundary. The goal is not observability after the fact. The goal is deterministic enforcement during execution.
 
-## Why AuthorityLayer Exists
+The library is aimed at developers building agent runtimes, internal automation, LLM-backed services, and safety-sensitive tools that need explicit operational limits. If a workflow should stop after a dollar budget, after a certain number of tool calls, or after a rate cap is reached, AuthorityLayer provides those controls directly in code.
 
-Autonomous AI agents can fail in expensive, hard-to-detect ways:
+## Why It Exists
 
-- **Runaway token spend** — a looping agent burns thousands of dollars before anyone notices
-- **Infinite tool loops** — agents retry the same failing call indefinitely
-- **Retry storms** — cascading failures hammer external APIs with no ceiling
-- **Cascading tool call explosions** — one agent spawns sub-calls that spawn more
+Many agent systems fail in ordinary ways long before they fail in exotic ones. A loop retries a tool forever. A model call path consumes more tokens than expected. A badly bounded automation script keeps hitting an external API because nothing in the runtime says stop. Post-run dashboards can describe the incident, but they do not prevent it.
 
-Most tooling detects these problems after they happen — in dashboards, alerts, or post-run analytics.
+AuthorityLayer was created to make those boundaries local, explicit, and enforceable. It treats spend caps, loop limits, and rate limits as runtime invariants rather than optional monitoring. That keeps the implementation small, easy to audit, and practical for teams that want guardrails without adopting a full platform.
 
-AuthorityLayer prevents them inside the runtime, before cost or damage accumulates.
+## Quickstart
 
-It helps developers:
-
-- prevent runaway LLM costs
-- stop infinite agent loops
-- limit AI agent tool calls per run and per minute
-- enforce runtime safety for autonomous agents
-
----
-
-## Live Enforcement Demo (10-second example)
-
-![AuthorityLayer enforcement demo](https://raw.githubusercontent.com/032383justin/authority-layer/main/docs/assets/enforcement-demo.svg)
-
----
-
-## Quick Start
+Install the package and run the environment check:
 
 ```bash
 npm install authority-layer
-```
-
-Verify the install:
-
-```bash
 npx authority-layer doctor
 ```
 
-```
-AuthorityLayer Doctor  authority-layer@0.1.2
+If the doctor command passes, you can create an `AuthorityLayer` instance and wrap the part of your agent loop that must stay within budget and call limits.
 
-  ✔  Node.js version >= 18                  pass
-  ✔  crypto module (sha256)                 pass
-  ✔  AUTHORITY_LAYER_DISABLE not set        pass
-  ✔  core module loads offline              pass
-  ✔  AuthorityLayer instantiates            pass
+## Example
 
-All checks passed. AuthorityLayer is ready.
-```
-
-## CLI Tools
-
-| Command | What it does |
-|---------|-------------|
-| `npx authority-layer doctor` | Verify your installation passes all environment checks |
-| `npx authority-layer simulate` | Run a live enforcement simulation — see a halt in action without writing any code |
-
----
-
-## Minimal Integration
+Minimal example:
 
 ```typescript
 import { AuthorityLayer, EnforcementHalt } from "authority-layer";
 
 const authority = new AuthorityLayer({
-  budget:       { dailyUSD: 50 },           // Hard USD spend cap
-  loopGuard:    { maxToolCallsPerRun: 25 }, // Max tool calls per run
-  toolThrottle: { maxCallsPerMinute: 60 },  // Sliding-window rate cap
+  budget: { dailyUSD: 25 },
+  loopGuard: { maxToolCallsPerRun: 12 },
+  toolThrottle: { maxCallsPerMinute: 30 },
 });
 
 try {
   await authority.wrap(async () => {
-    const result = await authority.tool("llm.chat", () =>
-      callYourModel(prompt)
-    );
+    const result = await authority.tool("llm.chat", () => callModel(prompt));
     authority.recordSpend(calculateCostUSD(result));
   });
-} catch (err) {
-  if (err instanceof EnforcementHalt) {
-    console.error(err.enforcement);
-    // { status: "halted", reason: "budget_exceeded", limit: 50, spent: 52.14, event_id: "evt_..." }
+} catch (error) {
+  if (error instanceof EnforcementHalt) {
+    console.error(error.enforcement);
   }
 }
 ```
 
----
+For a runnable project example, use the bundled demo in `examples/` and the workspace script:
 
-## Enforcement Primitives
+```bash
+npm run example
+```
 
-AuthorityLayer V1 provides three composable enforcement primitives. Each is opt-in — omit a config key to disable it.
+That flow exercises the same enforcement surface used by the package: `wrap()` defines the run boundary, `tool()` tracks tool usage and rate limits, and `recordSpend()` reports explicit provider cost data.
 
-These primitives enforce boundaries directly inside the execution loop — not in dashboards or external monitoring.
+## How It Works
 
-| Primitive | Config key | What it enforces |
-|-----------|------------|------------------|
-| **Budget cap** | `budget.dailyUSD` | Cumulative USD spend across the process lifetime. Halts when spend exceeds the cap. → [docs](./docs/enforcement.md#1-budget-cap) |
-| **Loop guard** | `loopGuard.maxToolCallsPerRun` | Total tool calls per `wrap()` invocation. Counter resets each run. → [docs](./docs/enforcement.md#2-loop-guard) |
-| **Tool throttle** | `toolThrottle.maxCallsPerMinute` | Rate of tool calls using a sliding 60-second window — no fixed buckets. → [docs](./docs/enforcement.md#3-tool-throttle) |
+AuthorityLayer is organized as a small workspace with the package implementation, runnable examples, and reference docs kept close together.
 
-When a primitive breaches, AuthorityLayer throws a typed `EnforcementHalt` error with a structured `.enforcement` object. Execution never crashes silently.
+- `packages/core/src/` contains the runtime implementation, CLI entrypoint, enforcement primitives, integrity helpers, and exported types.
+- `examples/` contains runnable examples for quick integration checks and demos.
+- `docs/` contains concept notes, API reference, enforcement details, and integrity-chain documentation.
+- `tests/` contains workspace-level smoke tests that keep the top-level layout and package metadata honest.
+- `src/` documents the workspace source map so contributors can find the package entrypoints quickly.
 
----
+There are exactly three enforcement primitives: a budget cap, a loop guard, and a tool throttle. Each primitive is opt-in. If you omit a config block, that guard is not instantiated. When a configured limit is breached, AuthorityLayer throws `EnforcementHalt` with structured data instead of forcing callers to parse log output.
 
-## How AuthorityLayer Is Different
+Operational boundaries are explicit. AuthorityLayer does not claim to sandbox arbitrary code, but it does define clear permission and approval boundaries inside an agent runtime: only wrapped runs are counted, only calls made through `authority.tool()` are throttled, and spend is recorded only when the host reports it. Evaluation should happen before release using repeatable tests and demos so halt behavior is visible under controlled conditions.
 
-Most AI guardrail tools focus on moderation or observability. AuthorityLayer focuses on **runtime enforcement**.
+## Use Cases
 
-| Tool type | What it does |
-|-----------|-------------|
-| Prompt guardrails | Filter or rewrite prompts and outputs |
-| Observability platforms | Analyze agent behavior after execution |
-| Cost analytics | Track and report token usage |
-| **AuthorityLayer** | Enforces hard limits **during** execution — halts immediately when a boundary is crossed |
+- Stop an internal agent after a daily spend budget is exhausted.
+- Prevent a tool-using workflow from entering an unbounded retry loop.
+- Enforce a maximum number of external tool calls per run.
+- Rate-limit calls to a provider or internal service from an autonomous workflow.
+- Add fail-closed controls to a prototype agent before exposing it to users.
+- Demonstrate runtime guardrail behavior in a reproducible example or CI pipeline.
 
----
+## Installation
 
-## Documentation
+For package consumers:
 
-| Topic | File |
-|------|------|
-| Concepts & philosophy | [docs/concepts.md](./docs/concepts.md) |
-| Enforcement primitives | [docs/enforcement.md](./docs/enforcement.md) |
-| API reference | [docs/api.md](./docs/api.md) |
-| Integrity chain | [docs/integrity.md](./docs/integrity.md) |
-| Example run | `npm run example` |
+```bash
+npm install authority-layer
+```
 
----
+For contributors working on the repository:
 
-AuthorityLayer is designed as a minimal enforcement primitive — not a platform, dashboard, or governance system.
+```bash
+git clone https://github.com/repoforge-dev/authority-layer.git
+cd authority-layer
+npm install
+npm test
+npm run -w authority-layer build
+npm run -w authority-layer typecheck
+```
 
----
+The workspace keeps contributor commands small. The root package coordinates examples and tests, while `packages/core` contains the published package source and build scripts.
+
+## Why RepoScore Matters
+
+Many GitHub repositories have thousands of stars but still lack strong documentation, onboarding clarity, or discoverability.
+
+RepoScore automatically analyzes repositories and identifies practical improvements that make projects easier for developers and AI agents to use.
+
+## RepoScore
+
+Badge:
+
+```md
+![RepoScore](https://repoforge.dev/badge/repoforge-dev/authority-layer)
+```
+
+Analysis page:
+
+- `https://repoforge.dev/repos/repoforge-dev/authority-layer`
+
+The RepoScore page is useful here because AuthorityLayer is a runtime-safety package. A public analysis page makes it easy to inspect documentation quality, discoverability, and onboarding clarity from the perspective of a developer evaluating whether to trust the project in a real workflow.
+
+## Contributing
+
+Contributions should keep the runtime surface explicit and easy to audit. Favor small changes, typed interfaces, and examples that demonstrate enforcement behavior clearly. When you change runtime semantics, update the docs and example flows in the same pull request so contributors can evaluate the impact without reverse-engineering the source.
+
+Start with [CONTRIBUTING.md](./CONTRIBUTING.md). It documents the workspace layout, test commands, and expectations for changes that affect halt behavior, permissions, or approval boundaries.
 
 ## License
 
-MIT © 2025 AuthorityLayer Contributors
-
-[GitHub](https://github.com/032383justin/authority-layer) · [npm](https://www.npmjs.com/package/authority-layer) · [Issues](https://github.com/032383justin/authority-layer/issues)
+MIT. See [LICENSE](./LICENSE).

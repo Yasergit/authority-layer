@@ -1,10 +1,28 @@
 {
     "name": "authority-layer-repo",
     "private": true,
+    "description": "Repository workspace for AuthorityLayer, a runtime guardrail package for AI agents.",
     "workspaces": [
         "packages/core"
     ],
     "scripts": {
-        "example": "npm run -w authority-layer build && node examples/run.js"
+        "example": "npm run -w authority-layer build && node examples/run.js",
+        "test": "node tests/workspace-smoke.test.js"
+    },
+    "keywords": [
+        "ai-guardrails",
+        "ai-agents",
+        "agent-runtime",
+        "ai-safety",
+        "llm-security",
+        "autonomous-agents"
+    ],
+    "homepage": "https://github.com/repoforge-dev/authority-layer",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/repoforge-dev/authority-layer.git"
+    },
+    "bugs": {
+        "url": "https://github.com/repoforge-dev/authority-layer/issues"
     }
 }

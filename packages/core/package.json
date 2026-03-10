@@ -21,8 +21,11 @@
     "prepublishOnly": "node -e \"require('fs').copyFileSync('../../README.md','README.md')\" && npm run build && npm run typecheck"
   },
   "keywords": [
+    "ai-guardrails",
     "ai-agents",
     "agent-runtime",
+    "ai-safety",
+    "llm-security",
     "runtime-guardrails",
     "llm-guardrails",
     "token-cost-control",
@@ -37,11 +40,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/032383justin/authority-layer.git"
+    "url": "git+https://github.com/repoforge-dev/authority-layer.git"
   },
-  "homepage": "https://github.com/032383justin/authority-layer",
+  "homepage": "https://github.com/repoforge-dev/authority-layer",
   "bugs": {
-    "url": "https://github.com/032383justin/authority-layer/issues"
+    "url": "https://github.com/repoforge-dev/authority-layer/issues"
   },
   "license": "MIT",
   "engines": {
